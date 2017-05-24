@@ -34,11 +34,11 @@ class Application(Frame):
         self.master.minsize(width=500, height=700)
 
         # Insert a menu bar on the main window
-        m=Menu(self.master)
+        m=Menu(self.master, tearoff=False)
         self.master.config(menu=m)
 
         # Create a menu button that brings up a menu
-        o=Menu(m)
+        o=Menu(m, tearoff=False)
         m.add_cascade(label="Options", menu=o)
 
         o.add_command(label="Modify Gearset", command=self.open_machine_config)
@@ -93,18 +93,31 @@ class Application(Frame):
         config_window.grab_set()
         config_window.title('Machine Configuration')
         title_frame = Frame(config_window)
-        entry_frame = Frame(config_window)
+        in_frame = Frame(config_window )
         button_frame = Frame(config_window)
-        title_frame.grid(row=0)
-        entry_frame.grid(row=1, sticky=N+E+S+W)
-        button_frame.grid(row=2)
+        title_frame.grid(row=0, column=0)
+        in_frame.grid(row=1, sticky=N+E+S+W, column=0)
+        button_frame.grid(row=2, column=0)
         Label(title_frame, text='Please enter the all gear-sets separated by a space').grid(pady=10)
+
         config_window.columnconfigure(0, weight=1)
 
+        xscrollbar = Scrollbar(in_frame, orient=HORIZONTAL, bd=0, relief='flat')
+        xscrollbar.grid(row=1, column=0, sticky=E+W)
+
+        in_canvas = Canvas(in_frame,width='20c', height='10c', background='#181818', scrollregion=(0, 0, 6200, 0), xscrollcommand=xscrollbar.set)
+        in_canvas.grid(row=0, column=0, sticky=N+S+E+W)
+        input_frame = Frame(in_canvas)
+        in_canvas.create_window(0,0, window=input_frame, anchor='nw')
+
+        xscrollbar.config(command=in_canvas.xview)
+
+        in_frame.columnconfigure(0, weight=1)
+        input_frame.columnconfigure(1, weight=1)
+
         for i in range(10):
-            entry_frame.columnconfigure(1, weight=1)
             entry_id = 'entry_num_' + str(i)
-            config_window_entries[entry_id] = [Entry(entry_frame, width=25,text=''), Entry(entry_frame, width=100,text='')]
+            config_window_entries[entry_id] = [Entry(input_frame, width=25,text=''), Entry(input_frame, width=1000,text='')]
             config_window_entries[entry_id][0].grid(row=i, column=0, pady=10, padx=5)
             config_window_entries[entry_id][1].grid(row=i, column=1, sticky=N+E+S+W, pady=10, padx=5)
 
@@ -153,7 +166,7 @@ class Application(Frame):
             self.option_menu.children['menu'].delete(0, 'end')
 
     def open_about(self):
-        messagebox.showinfo('About', '   Developed by Dev Aggarwal \n Agnee Transmissions pvt. ltd.')
+        messagebox.showinfo('About', '   Made by Dev Aggarwal \n Agnee Transmissions pvt. ltd.')
 
     def initiate_computation(self, ratio, tol):
 
@@ -222,7 +235,7 @@ class Application(Frame):
         save_list = sorted(save_list, key=lambda x: x[2])
         for foo in save_list:
             entry = str('  ' + str(foo[0]) + ' ' * (23 - len(str(foo[0]))) + str(foo[1]) + ' ' * (
-            15 - len(str(foo[1]))) + str(foo[2]))  # create a readable output
+            15 - len(str(foo[1]))) + str('{0:.12f}'.format(foo[2])))  # create a readable output
             update_log(entry + '\n')  # save output to log
             self.result_lb.insert(END, entry)  # print output
             self.result_lb.insert(END, ' ')

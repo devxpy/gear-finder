@@ -1,11 +1,11 @@
 from tkinter import *
-from tkinter import messagebox, ttk
+from tkinter import messagebox, font
 import pickle
 from itertools import permutations
 from datetime import datetime
 from time import time
 from threading import Thread
-
+import webbrowser
 
 def update_file(gear_dict):
     file_obj = open('gear_config', 'wb')
@@ -31,7 +31,7 @@ class Application(Frame):
         super().__init__(master)
         self.master=master
         self.master.title('Gear Finder')
-        self.master.minsize(width=500, height=700)
+        self.master.minsize(width=500, height=500)
 
         # Insert a menu bar on the main window
         m=Menu(self.master, tearoff=False)
@@ -78,7 +78,7 @@ class Application(Frame):
         tol_label.pack(side=LEFT)
         tol_entry.pack(side=LEFT)
         ratio_entry.insert(0, ' ')  # default values
-        tol_entry.insert(0, '0.000051')
+        tol_entry.insert(0, '0.00009')
         find_button = Button(entry_frame, text='Find', command=lambda: self.initiate_computation(ratio_entry.get(), tol_entry.get()))
         find_button.pack(side=LEFT)
 
@@ -166,7 +166,25 @@ class Application(Frame):
             self.option_menu.children['menu'].delete(0, 'end')
 
     def open_about(self):
-        messagebox.showinfo('About', '   Made by Dev Aggarwal \n Agnee Transmissions pvt. ltd.')
+        window = Toplevel(self.master)
+        window.grab_set()
+        window.title('About')
+        window.minsize(width=300, height=80)
+        Label(window, text='© Dev Aggarwal').pack(pady=10)
+        link = Label(window, text='Agnee Transmissions', foreground='blue')
+        f = font.Font(link, link.cget("font"))
+        f.configure(underline = True)
+        link.configure(font=f)
+        link.pack(pady=5)
+
+        def onclick():
+            link.configure(foreground='black')
+            webbrowser.open('http://www.agneetransmissions.com/')
+            
+        link.bind("<Button-1>", lambda _:onclick())
+        window.mainloop()
+
+            
 
     def initiate_computation(self, ratio, tol):
 
